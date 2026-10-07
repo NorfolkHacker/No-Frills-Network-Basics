@@ -1,0 +1,1192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>No Frills Network Basics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Monoton&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky neon contents rail on the left, one readable 70ch reading column on the right; stacks to one column on phones. Single committed dark "neon sign" look. */
+:root{
+  color-scheme: dark;
+  --bg:#0c0a1d;          /* night-sky violet */
+  --bg-2:#141130;        /* raised panels */
+  --bg-3:#1d1945;        /* code / tables */
+  --line:#2e2862;
+  --fg:#ebe8ff;          /* body text */
+  --muted:#a9a3d6;
+  --cyan:#3ef2ff;        /* primary neon */
+  --pink:#ff4fd2;        /* secondary neon */
+  --lime:#b8ff4a;        /* plain-English / good */
+  --amber:#ffb547;       /* warnings */
+  --red:#ff5d73;
+  --glow-cyan:0 0 6px rgba(62,242,255,.55),0 0 22px rgba(62,242,255,.25);
+  --glow-pink:0 0 6px rgba(255,79,210,.6),0 0 24px rgba(255,79,210,.3);
+  --f-sign:"Monoton","Atkinson Hyperlegible",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --s-1:.875rem; --s0:1.0625rem; --s1:1.3rem; --s2:1.65rem; --s3:2.2rem;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:var(--s0);line-height:1.65;padding-inline:16px}
+a{color:var(--cyan);text-underline-offset:3px}
+a:hover{color:var(--pink)}
+:focus-visible{outline:2px solid var(--pink);outline-offset:3px;border-radius:4px}
+code,kbd{font-family:var(--f-mono);font-size:.9em;background:var(--bg-3);padding:.1em .35em;border-radius:4px;color:var(--cyan)}
+strong{color:#fff}
+
+/* ---------- hero ---------- */
+.hero{max-width:1200px;margin:0 auto;padding-block:48px 36px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:auto -20% 0 -20%;height:55%;z-index:-1;
+  background:
+   linear-gradient(transparent 0 0),
+   repeating-linear-gradient(90deg,rgba(255,79,210,.22) 0 1px,transparent 1px 64px),
+   repeating-linear-gradient(0deg,rgba(255,79,210,.22) 0 1px,transparent 1px 28px);
+  transform:perspective(320px) rotateX(58deg);transform-origin:bottom;
+  mask-image:linear-gradient(to top,#000 10%,transparent 95%);-webkit-mask-image:linear-gradient(to top,#000 10%,transparent 95%)}
+.wip{display:inline-block;font-family:var(--f-mono);font-size:var(--s-1);letter-spacing:.08em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);padding:2px 10px;border-radius:999px}
+.sign{font-family:var(--f-sign);font-weight:400;line-height:1.05;margin:18px 0 10px;font-size:clamp(2.4rem,8vw,5.6rem);color:#fff;text-shadow:var(--glow-pink);letter-spacing:.02em}
+.sign span{display:block;color:var(--cyan);text-shadow:var(--glow-cyan)}
+.sign .flick{animation:flicker 2.6s 1 .4s}
+@keyframes flicker{0%,19%,21%,23%,55%,57%,100%{opacity:1}20%,22%,56%{opacity:.25}}
+.tagline{font-size:var(--s1);max-width:40ch;color:var(--muted);margin:0}
+.tagline b{color:var(--lime)}
+
+/* ---------- layout ---------- */
+.wrap{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:48px;padding-block:8px 80px}
+aside{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;max-height:100vh;overflow:auto;padding-block:12px}
+#toc summary{display:none}
+#toc nav{display:flex;flex-direction:column;gap:2px;font-size:.95rem}
+#toc .grp{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pink);margin:14px 0 4px}
+#toc a{color:var(--muted);text-decoration:none;padding:3px 10px;border-radius:6px;display:flex;justify-content:space-between;gap:8px}
+#toc a:hover{color:var(--fg);background:var(--bg-2)}
+#toc a.on{color:var(--cyan);background:var(--bg-2);text-shadow:var(--glow-cyan)}
+#toc a.done::after{content:"✓";color:var(--lime)}
+.progress{margin-bottom:6px;font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.bar{height:6px;background:var(--bg-3);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--pink));box-shadow:var(--glow-cyan);transition:width .4s}
+
+main{min-width:0;max-width:72ch}
+.part{margin:56px 0 8px;font-family:var(--f-mono);font-size:var(--s-1);letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
+.part::after{content:"";display:block;height:1px;margin-top:10px;background:linear-gradient(90deg,var(--pink),transparent)}
+section{padding-block:28px 12px;border-bottom:1px dashed var(--line)}
+h2{font-size:var(--s3);line-height:1.15;margin:0 0 14px;text-wrap:balance;color:#fff;text-shadow:var(--glow-cyan)}
+h2 small{display:block;font-family:var(--f-mono);font-size:.8rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);text-shadow:none;margin-bottom:6px}
+h3{font-size:var(--s1);margin:28px 0 8px;color:var(--cyan);text-wrap:balance}
+p{margin:0 0 14px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+li::marker{color:var(--pink)}
+
+/* ---------- components ---------- */
+.plain{border:1px dashed var(--lime);border-radius:12px;padding:16px 18px 6px;margin:18px 0;background:rgba(184,255,74,.05)}
+.plain::before,.warn::before,.voice::before{content:attr(data-label);display:inline-block;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.plain::before{color:var(--lime)}
+.warn{border:1px solid var(--amber);border-radius:12px;padding:16px 18px 6px;margin:18px 0;background:rgba(255,181,71,.07)}
+.warn::before{color:var(--amber)}
+.voice{border-left:3px solid var(--pink);padding:6px 0 2px 18px;margin:18px 0;font-size:var(--s1);line-height:1.5}
+.voice::before{color:var(--pink);display:block}
+
+.term{position:relative;background:#06050f;border:1px solid var(--line);border-radius:10px;margin:16px 0;overflow:hidden}
+.term header{display:flex;justify-content:space-between;align-items:center;padding:6px 12px;background:var(--bg-3);font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+.term pre{margin:0;padding:14px 16px;overflow-x:auto;font-family:var(--f-mono);font-size:.88rem;line-height:1.55;color:var(--fg)}
+.term .c{color:#7d76b3}
+.term .p{color:var(--lime)}
+.copy{font:inherit;color:var(--cyan);background:none;border:1px solid var(--line);border-radius:6px;padding:2px 8px;cursor:pointer}
+.copy:hover{border-color:var(--cyan)}
+
+.tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:.95rem;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pink);background:var(--bg-2)}
+tr:last-child td{border-bottom:0}
+td code{white-space:nowrap}
+
+.bin{font-family:var(--f-mono);font-size:.9rem;overflow-x:auto;background:#06050f;border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:16px 0;line-height:1.8;white-space:pre}
+.n{color:var(--cyan);text-shadow:var(--glow-cyan)}
+.h{color:var(--pink)}
+
+.check{margin:18px 0;border:1px solid var(--line);border-radius:10px;background:var(--bg-2)}
+.check summary{cursor:pointer;padding:12px 16px;font-weight:700;list-style:none;display:flex;gap:10px;align-items:baseline}
+.check summary::-webkit-details-marker{display:none}
+.check summary::before{content:"?";font-family:var(--f-mono);color:var(--bg);background:var(--pink);border-radius:50%;width:1.4em;height:1.4em;display:inline-grid;place-items:center;flex:none;font-size:.85em}
+.check[open] summary::before{content:"!";background:var(--lime)}
+.check div{padding:0 16px 12px 16px}
+
+.got{display:flex;align-items:center;gap:10px;margin:22px 0 6px;font-family:var(--f-mono);font-size:.85rem;color:var(--muted);cursor:pointer;width:fit-content}
+.got input{accent-color:var(--lime);width:18px;height:18px}
+
+/* flows: DNS, DHCP, TCP */
+.flow{list-style:none;padding:0;margin:18px 0;display:grid;gap:10px;counter-reset:f}
+.flow li{counter-increment:f;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:start;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0}
+.flow li::before{content:counter(f);grid-row:span 2;font-family:var(--f-mono);font-weight:600;color:var(--bg);background:var(--cyan);box-shadow:var(--glow-cyan);width:2rem;height:2rem;border-radius:50%;display:grid;place-items:center}
+.flow b{color:#fff}
+.flow span{color:var(--muted);font-size:.95rem}
+.flow .arrow{font-family:var(--f-mono);color:var(--pink);font-size:.82rem}
+
+/* OSI + Purdue stacks */
+.stack{display:grid;gap:6px;margin:18px 0}
+.layer{display:grid;grid-template-columns:3.2rem minmax(0,1fr);gap:12px;align-items:center;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.layer .num{font-family:var(--f-mono);font-weight:600;font-size:1.2rem;text-align:center;color:var(--pink);text-shadow:var(--glow-pink)}
+.layer b{color:#fff}
+.layer p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
+.layer.dmz{border-style:dashed;border-color:var(--amber)}
+.layer.dmz .num{color:var(--amber);text-shadow:none}
+
+/* subnet calculator */
+.calc{background:var(--bg-2);border:1px solid var(--cyan);box-shadow:var(--glow-cyan);border-radius:14px;padding:18px;margin:20px 0}
+.calc .row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.calc label{display:flex;flex-direction:column;gap:4px;font-family:var(--f-mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.calc input{font-family:var(--f-mono);font-size:1.05rem;background:#06050f;color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:12em}
+.calc input[type=number]{width:5.5em}
+.calc input:focus{border-color:var(--cyan);outline:none;box-shadow:var(--glow-cyan)}
+.calc .err{color:var(--red);font-size:.9rem;min-height:1.4em;margin:6px 0 0}
+.calc dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}
+.calc dl div{background:#06050f;border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.calc dt{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.calc dd{margin:0;font-family:var(--f-mono);font-size:1rem;color:var(--cyan);overflow-wrap:anywhere}
+.calc .bin{margin:8px 0 0}
+.calc .key{font-size:.85rem;color:var(--muted);margin:8px 0 0}
+
+.ladder{font-family:var(--f-mono);white-space:pre;overflow-x:auto;background:#06050f;border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--lime);margin:16px 0;font-size:.9rem;line-height:1.5}
+
+footer{max-width:72ch;margin:40px 0 0;color:var(--muted);font-size:.9rem}
+
+@media (max-width:900px){
+  .wrap{grid-template-columns:minmax(0,1fr);gap:8px}
+  aside{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;max-height:none;padding:8px 0;background:var(--bg)}
+  #toc{background:var(--bg-2);border:1px solid var(--line);border-radius:10px}
+  #toc summary{display:flex;justify-content:space-between;cursor:pointer;padding:10px 14px;font-family:var(--f-mono);font-size:.85rem;color:var(--cyan);list-style:none}
+  #toc summary::-webkit-details-marker{display:none}
+  #toc nav{max-height:60vh;overflow:auto;padding:0 8px 10px}
+  #toc .progress{padding:0 10px}
+  .hero{padding-block:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="wip">Work in progress · salty edition</span>
+  <h1 class="sign"><span class="flick">No Frills</span>Network Basics</h1>
+  <p class="tagline">Does what it says on the tin. <b>Free</b>, plain-English networking for people willing to actually learn.</p>
+</header>
+
+<div class="wrap">
+<aside>
+  <details id="toc" open>
+    <summary><span>☰ Contents</span><span id="pct-m">0%</span></summary>
+    <div class="progress">Your progress: <span id="pct">0 of 0</span><div class="bar"><i id="barfill"></i></div></div>
+    <nav aria-label="Contents">
+      <div class="grp">Start here</div>
+      <a href="#who">Who am I?</a>
+      <a href="#mrrobot">"Teach me to hack"</a>
+      <a href="#howto">How to use this</a>
+      <div class="grp">Fundamentals</div>
+      <a href="#osi">The OSI model</a>
+      <a href="#devices">Network devices</a>
+      <a href="#tcpudp">TCP vs UDP</a>
+      <a href="#ports">Ports</a>
+      <div class="grp">Addressing</div>
+      <a href="#ip">IP addresses</a>
+      <a href="#binary">Binary</a>
+      <a href="#subnets">Subnets &amp; masks</a>
+      <a href="#cidr">CIDR</a>
+      <a href="#calc">Subnet calculator</a>
+      <a href="#pubpriv">Public vs private</a>
+      <a href="#ipv6">IPv6 in 2 minutes</a>
+      <div class="grp">Protocols</div>
+      <a href="#dns">DNS</a>
+      <a href="#dhcp">DHCP</a>
+      <a href="#arp">ARP</a>
+      <a href="#smb">SMB</a>
+      <a href="#smtp">SMTP</a>
+      <a href="#http">HTTP / HTTPS</a>
+      <div class="grp">Defend &amp; observe</div>
+      <a href="#firewalls">Firewalls</a>
+      <a href="#analysis">Network analysis</a>
+      <a href="#wireless">Wireless protocols</a>
+      <div class="grp">ICS / OT</div>
+      <a href="#ics">Why you NEVER hack ICS</a>
+      <a href="#shodan">Shodan</a>
+      <a href="#purdue">The Purdue Model</a>
+      <a href="#plc">PLCs</a>
+      <a href="#scada">SCADA</a>
+      <a href="#modbus">Modbus</a>
+      <a href="#hmi">HMI</a>
+      <a href="#canbus">CAN bus</a>
+      <a href="#rf">Radio frequencies</a>
+      <a href="#hid">HID: USB on steroids</a>
+      <div class="grp">Finish</div>
+      <a href="#next">What next?</a>
+    </nav>
+  </details>
+</aside>
+
+<main>
+
+<!-- =================== START =================== -->
+<div class="part">Start here</div>
+
+<section id="who">
+  <h2><small>About</small>Who am I?</h2>
+  <p>Just an IT manager with a lot of experience, and a lot of niche experience in OT/ICS security.</p>
+  <p>There are two things I'm very aware of:</p>
+  <ol>
+    <li><strong>People who want the quick win without spending any time learning.</strong> Everything is expected on a plate. I once put this down to laziness. Partly it is, but it's also because technology has become so push-button friendly that it's turning the world into drones.</li>
+    <li><strong>Worse, the people who exploit that.</strong> They charge ridiculous money for courses that lack any real content, or that contain stuff you could find with a search engine in five minutes.</li>
+  </ol>
+  <p>I can't do much about number 1. If that's you, this probably isn't for you. For those willing to learn and do their own research, without constantly asking "next question please", I can do something about number 2.</p>
+  <div class="voice" data-label="The deal">No frills. No paywall. No upsell. Read it, try it, look things up.</div>
+  <label class="got"><input type="checkbox" data-sec="who"> I've read this</label>
+</section>
+
+<section id="mrrobot">
+  <h2><small>Chapter 1</small>"I want to be a hacker like Mr Robot. Teach ME!"</h2>
+  <p>Shut up. Take a moment, say it out loud, and listen to how ridiculous it sounds.</p>
+  <p>By the way, Mr Robot was rather good, but it was much less about hacking than about mental illness.</p>
+  <p>You have two options:</p>
+  <ul>
+    <li><strong>Option 1:</strong> Go away.</li>
+    <li><strong>Option 2:</strong> Scroll down and start learning the fundamentals.</li>
+  </ul>
+  <p>Before you stick on a Guy Fawkes mask and pretend you're some anonymous super hacker, learn how the plumbing works. Every real attack and every real defence is built on the boring stuff below. It isn't complicated, and you'll thank yourself for putting in the work instead of playing Fortnite or trying to get into someone's private Instagram. (Yes, I'm looking at YOU.)</p>
+  <label class="got"><input type="checkbox" data-sec="mrrobot"> I picked option 2</label>
+</section>
+
+<section id="howto">
+  <h2><small>Read me</small>How to use this guide</h2>
+  <p>Go top to bottom. Each topic builds on the one before. Look out for these:</p>
+  <div class="plain" data-label="In plain English"><p>The one-paragraph version. If you only read these boxes, you'll still come away knowing something.</p></div>
+  <div class="warn" data-label="Legal / safety"><p>Things that can get you arrested, sacked, or someone hurt. Read every one.</p></div>
+  <div class="term"><header><span>try it · your own machine</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> commands you can run on your own computer</pre></div>
+  <p>At the end of each topic there's a <strong>"Check yourself"</strong> question and a tick box. Your ticks are saved in this browser only, so you can pick up where you left off.</p>
+  <div class="warn" data-label="The golden rule"><p>Only ever test, scan or poke at things <strong>you own</strong> or have <strong>written permission</strong> to test. In the UK that's the Computer Misuse Act 1990; most countries have an equivalent. "I was only learning" is not a defence.</p></div>
+  <label class="got"><input type="checkbox" data-sec="howto"> Understood</label>
+</section>
+
+<!-- =================== FUNDAMENTALS =================== -->
+<div class="part">Chapter 2 · Fundamentals</div>
+
+<section id="osi">
+  <h2><small>Fundamentals</small>The OSI model</h2>
+  <div class="plain" data-label="In plain English"><p>Sending data across a network is a big job, so it's split into seven layers. Each layer does one job and only talks to the layers directly above and below it. When something breaks, the layers give you a checklist: is the cable plugged in (layer 1)? Do I have an IP address (layer 3)? Is the website up (layer 7)?</p></div>
+  <p>Think of posting a letter. You write it (application), put it in an envelope, write an address, and the postal service handles lorries and roads. You don't care which lorry carries it. Networks work the same way.</p>
+  <div class="stack" aria-label="The seven OSI layers, top to bottom">
+    <div class="layer"><span class="num">7</span><div><b>Application</b><p>What the user's program speaks. HTTP, DNS, SMTP, SMB.</p></div></div>
+    <div class="layer"><span class="num">6</span><div><b>Presentation</b><p>Formatting, encoding and encryption. Making data readable at both ends (e.g. TLS, character encoding).</p></div></div>
+    <div class="layer"><span class="num">5</span><div><b>Session</b><p>Opening, keeping and closing conversations between two programs.</p></div></div>
+    <div class="layer"><span class="num">4</span><div><b>Transport</b><p>TCP and UDP. Splits data into <em>segments</em>, uses <em>port numbers</em> to reach the right program.</p></div></div>
+    <div class="layer"><span class="num">3</span><div><b>Network</b><p>IP addresses and routing. Data travels as <em>packets</em>. Routers live here.</p></div></div>
+    <div class="layer"><span class="num">2</span><div><b>Data Link</b><p>MAC addresses, local delivery on one network. Data travels as <em>frames</em>. Switches live here.</p></div></div>
+    <div class="layer"><span class="num">1</span><div><b>Physical</b><p>Cables, fibre, radio waves. Raw 1s and 0s.</p></div></div>
+  </div>
+  <p>Remember the order from the bottom up with <strong>"Please Do Not Throw Sausage Pizza Away"</strong>.</p>
+  <h3>OSI vs TCP/IP</h3>
+  <p>OSI is a teaching model. The internet actually runs on the simpler <strong>TCP/IP model</strong>, which squashes the layers into four: <em>Link</em> (OSI 1–2), <em>Internet</em> (3), <em>Transport</em> (4) and <em>Application</em> (5–7). People still say "layer 2" and "layer 7" all the time, so learn the OSI numbers.</p>
+  <details class="check"><summary>A switch forwards traffic using MAC addresses. Which layer is that?</summary><div><p>Layer 2, Data Link. Routers, which use IP addresses, are layer 3.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="osi"> I've got this</label>
+</section>
+
+<section id="devices">
+  <h2><small>Fundamentals</small>Network devices</h2>
+  <div class="plain" data-label="In plain English"><p>A <strong>switch</strong> connects devices inside one network. A <strong>router</strong> connects different networks together, like your home to the internet. Your "broadband router" is actually several boxes squeezed into one.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Device</th><th>Layer</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><b>Hub</b></td><td>1</td><td>Repeats everything it receives out of every port. Dumb, noisy, mostly extinct. Everyone sees everyone's traffic.</td></tr>
+      <tr><td><b>Switch</b></td><td>2</td><td>Learns which MAC address is on which port and only sends frames where they need to go.</td></tr>
+      <tr><td><b>Router</b></td><td>3</td><td>Moves packets between networks using IP addresses and a routing table.</td></tr>
+      <tr><td><b>Access point</b></td><td>2</td><td>A switch port that uses radio instead of a cable. That's what Wi-Fi is.</td></tr>
+      <tr><td><b>Modem</b></td><td>1</td><td>Converts the signal on your phone line, cable or fibre into Ethernet. "MOdulator-DEModulator".</td></tr>
+      <tr><td><b>Firewall</b></td><td>3–7</td><td>Decides which traffic is allowed in and out. See <a href="#firewalls">Firewalls</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Your home router is usually a modem, router, switch, access point, firewall and DHCP server in one plastic box.</p>
+  <h3>MAC addresses</h3>
+  <p>Every network card has a <strong>MAC address</strong>, a 48-bit hardware ID written like <code>3c:22:fb:9a:10:4e</code>. The first half identifies the manufacturer. MAC addresses only matter on the local network; they never cross a router.</p>
+  <div class="term"><header><span>try it · see your own addresses</span><button class="copy" type="button">Copy</button></header><pre><span class="c"># Linux / macOS</span>
+<span class="p">$</span> ip addr        <span class="c"># or: ifconfig</span>
+<span class="c"># Windows</span>
+<span class="p">&gt;</span> ipconfig /all</pre></div>
+  <details class="check"><summary>You plug two PCs into a switch. Do you need a router for them to talk?</summary><div><p>No. If they're on the same network (same subnet), the switch is enough. You need a router to reach a <em>different</em> network.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="devices"> I've got this</label>
+</section>
+
+<section id="tcpudp">
+  <h2><small>Fundamentals</small>TCP vs UDP</h2>
+  <div class="plain" data-label="In plain English"><p><strong>TCP</strong> is recorded delivery: it checks everything arrived, in order, and resends anything lost. <strong>UDP</strong> is shouting across a room: fast, no checking, and if a word gets lost, tough.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead>
+    <tbody>
+      <tr><td>Connection</td><td>Sets one up first (handshake)</td><td>None. Just sends.</td></tr>
+      <tr><td>Reliable?</td><td>Yes. Resends lost data, keeps order.</td><td>No guarantees.</td></tr>
+      <tr><td>Speed</td><td>Slower, more overhead</td><td>Faster, tiny overhead</td></tr>
+      <tr><td>Used for</td><td>Web, email, file transfer, SSH</td><td>DNS lookups, video calls, gaming, streaming, DHCP</td></tr>
+    </tbody>
+  </table></div>
+  <h3>The TCP three-way handshake</h3>
+  <ol class="flow">
+    <li><b>SYN</b><span class="arrow">client → server</span><span>"I'd like to talk. Here's my starting sequence number."</span></li>
+    <li><b>SYN-ACK</b><span class="arrow">server → client</span><span>"Got it. Here's mine."</span></li>
+    <li><b>ACK</b><span class="arrow">client → server</span><span>"Got yours. We're connected." Data can now flow.</span></li>
+  </ol>
+  <p>You'll see these flags constantly in Wireshark and in port scanners. A port that answers a SYN with SYN-ACK is <em>open</em>.</p>
+  <details class="check"><summary>Why would a video call use UDP instead of TCP?</summary><div><p>A late video frame is useless. It's better to drop it and show the next one than to pause everything while TCP resends it.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="tcpudp"> I've got this</label>
+</section>
+
+<section id="ports">
+  <h2><small>Fundamentals</small>Ports</h2>
+  <div class="plain" data-label="In plain English"><p>An IP address gets data to the right <em>computer</em>. A port number gets it to the right <em>program</em> on that computer. If the IP is a block of flats, the port is the flat number.</p></div>
+  <p>Ports run from 0 to 65535. Ports 0–1023 are the "well-known" ones. Learn the common ones below by heart; they come up everywhere.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Port</th><th>Proto</th><th>Service</th></tr></thead>
+    <tbody>
+      <tr><td><code>20/21</code></td><td>TCP</td><td>FTP (file transfer, unencrypted)</td></tr>
+      <tr><td><code>22</code></td><td>TCP</td><td>SSH (secure remote shell)</td></tr>
+      <tr><td><code>23</code></td><td>TCP</td><td>Telnet (remote shell, plain text: avoid)</td></tr>
+      <tr><td><code>25 / 587</code></td><td>TCP</td><td>SMTP (sending email)</td></tr>
+      <tr><td><code>53</code></td><td>UDP+TCP</td><td>DNS</td></tr>
+      <tr><td><code>67 / 68</code></td><td>UDP</td><td>DHCP (server / client)</td></tr>
+      <tr><td><code>80</code></td><td>TCP</td><td>HTTP</td></tr>
+      <tr><td><code>110 / 143</code></td><td>TCP</td><td>POP3 / IMAP (reading email)</td></tr>
+      <tr><td><code>161</code></td><td>UDP</td><td>SNMP (device monitoring)</td></tr>
+      <tr><td><code>443</code></td><td>TCP</td><td>HTTPS</td></tr>
+      <tr><td><code>445</code></td><td>TCP</td><td>SMB (Windows file sharing)</td></tr>
+      <tr><td><code>502</code></td><td>TCP</td><td>Modbus TCP (industrial)</td></tr>
+      <tr><td><code>3389</code></td><td>TCP</td><td>RDP (Windows Remote Desktop)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="term"><header><span>try it · what is listening on my machine?</span><button class="copy" type="button">Copy</button></header><pre><span class="c"># Linux</span>
+<span class="p">$</span> ss -tulpn
+<span class="c"># Windows</span>
+<span class="p">&gt;</span> netstat -ano</pre></div>
+  <details class="check"><summary>A server has port 3389 open to the internet. What is it, and is that a good idea?</summary><div><p>Remote Desktop. No, it's one of the most attacked ports on the internet. Put it behind a VPN.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="ports"> I've got this</label>
+</section>
+
+<!-- =================== ADDRESSING =================== -->
+<div class="part">Chapter 3 · Networking: addressing</div>
+
+<section id="ip">
+  <h2><small>Addressing</small>IP addresses</h2>
+  <div class="plain" data-label="In plain English"><p>An IP address is a device's postal address on a network. Part of it says <strong>which street</strong> (the network) and part says <strong>which house</strong> (the host).</p></div>
+  <p>An IPv4 address is 32 bits, written as four numbers from 0 to 255 separated by dots, for example <code>192.168.1.10</code>. Each of those four numbers is called an <strong>octet</strong> because it's 8 bits.</p>
+  <p>Every address has two parts:</p>
+  <ul>
+    <li><strong>Network portion</strong>: shared by every device on the same network.</li>
+    <li><strong>Host portion</strong>: unique to each device on that network.</li>
+  </ul>
+  <p>Where the split happens is set by the <strong>subnet mask</strong>, which is coming up shortly. First, you need binary.</p>
+  <label class="got"><input type="checkbox" data-sec="ip"> I've got this</label>
+</section>
+
+<section id="binary">
+  <h2><small>Addressing</small>Binary, the bit nobody wants to learn</h2>
+  <div class="plain" data-label="In plain English"><p>Computers only see 1s and 0s. Each octet is 8 switches. Each switch has a value, and you add up the ones that are switched on.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Bit</th><th>8th</th><th>7th</th><th>6th</th><th>5th</th><th>4th</th><th>3rd</th><th>2nd</th><th>1st</th></tr></thead>
+    <tbody>
+      <tr><td>Value</td><td>128</td><td>64</td><td>32</td><td>16</td><td>8</td><td>4</td><td>2</td><td>1</td></tr>
+      <tr><td>192 =</td><td class="n">1</td><td class="n">1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>168 =</td><td class="n">1</td><td>0</td><td class="n">1</td><td>0</td><td class="n">1</td><td>0</td><td>0</td><td>0</td></tr>
+    </tbody>
+  </table></div>
+  <p>192 = 128 + 64. 168 = 128 + 32 + 8. All eight on = 255, which is why no octet goes higher.</p>
+  <p>So the full address <code>192.168.1.1</code> in binary is:</p>
+  <div class="bin">192.168.1.1  =  11000000.10101000.00000001.00000001</div>
+  <details class="check"><summary>What is 10101010 in decimal?</summary><div><p>128 + 32 + 8 + 2 = <strong>170</strong>.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="binary"> I've got this</label>
+</section>
+
+<section id="subnets">
+  <h2><small>Addressing</small>Subnets &amp; subnet masks</h2>
+  <div class="plain" data-label="In plain English"><p>A subnet is a smaller network carved out of a bigger one, like splitting an office into floors. The <strong>subnet mask</strong> is the ruler that marks where the "street" part of the address ends and the "house" part begins.</p></div>
+  <h3>Why subnet?</h3>
+  <ul>
+    <li><strong>Performance.</strong> Broadcast traffic stays inside its own subnet instead of flooding the whole network.</li>
+    <li><strong>Security.</strong> You can put firewall rules (ACLs) between subnets, so the CCTV cameras can't talk to the finance PCs.</li>
+    <li><strong>Organisation.</strong> Addresses are handed out in tidy, sensible blocks, and new subnets can be added as you grow.</li>
+  </ul>
+  <h3>How the mask works</h3>
+  <p>A subnet mask is also 32 bits: a run of <span class="n">1s</span> (network) followed by a run of <span class="h">0s</span> (hosts). <code>255.255.255.0</code> means the first 24 bits are network, the last 8 are hosts.</p>
+  <p>To find the network an address belongs to, the computer does a logical <strong>AND</strong>: a bit only stays 1 if it's 1 in <em>both</em> the address and the mask.</p>
+  <div class="bin">IP address   <span class="n">11000000.10101000.00000001</span>.<span class="h">00000001</span>   192.168.1.1
+Subnet mask  <span class="n">11111111.11111111.11111111</span>.<span class="h">00000000</span>   255.255.255.0
+             ───────────────────────────────────
+AND result   <span class="n">11000000.10101000.00000001</span>.<span class="h">00000000</span>   192.168.1.0  ← the network address</div>
+  <h3>Two addresses you can't use</h3>
+  <p>In every subnet, the first address (host bits all 0) is the <strong>network address</strong> and the last (host bits all 1) is the <strong>broadcast address</strong>. So a subnet with 256 addresses has <strong>254 usable</strong> host addresses.</p>
+  <h3>Designing subnets</h3>
+  <p>Start from how many hosts each subnet needs, add room to grow, then pick the smallest mask that fits. Think about the physical layout too: a separate subnet per building, floor or function is easier to secure and troubleshoot.</p>
+  <details class="check"><summary>A PC is 10.0.5.77 with mask 255.255.255.0. What network is it on?</summary><div><p><strong>10.0.5.0</strong>. The mask keeps the first three octets and zeroes the last.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="subnets"> I've got this</label>
+</section>
+
+<section id="cidr">
+  <h2><small>Addressing</small>CIDR notation</h2>
+  <div class="plain" data-label="In plain English"><p>CIDR is shorthand. Instead of writing <code>255.255.255.0</code> you write <code>/24</code>, meaning "the first 24 bits are the network". Bigger number after the slash = smaller network.</p></div>
+  <p><code>192.168.1.0/24</code> means network <code>192.168.1.0</code> with a 24-bit mask. CIDR (Classless Inter-Domain Routing) replaced the old fixed "Class A/B/C" system, so you can split networks at any bit, not just at the dots.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>CIDR</th><th>Subnet mask</th><th>Total addresses</th><th>Usable hosts</th></tr></thead>
+    <tbody>
+      <tr><td><code>/8</code></td><td><code>255.0.0.0</code></td><td>16,777,216</td><td>16,777,214</td></tr>
+      <tr><td><code>/16</code></td><td><code>255.255.0.0</code></td><td>65,536</td><td>65,534</td></tr>
+      <tr><td><code>/24</code></td><td><code>255.255.255.0</code></td><td>256</td><td>254</td></tr>
+      <tr><td><code>/25</code></td><td><code>255.255.255.128</code></td><td>128</td><td>126</td></tr>
+      <tr><td><code>/26</code></td><td><code>255.255.255.192</code></td><td>64</td><td>62</td></tr>
+      <tr><td><code>/27</code></td><td><code>255.255.255.224</code></td><td>32</td><td>30</td></tr>
+      <tr><td><code>/28</code></td><td><code>255.255.255.240</code></td><td>16</td><td>14</td></tr>
+      <tr><td><code>/29</code></td><td><code>255.255.255.248</code></td><td>8</td><td>6</td></tr>
+      <tr><td><code>/30</code></td><td><code>255.255.255.252</code></td><td>4</td><td>2</td></tr>
+      <tr><td><code>/32</code></td><td><code>255.255.255.255</code></td><td>1</td><td>1 (a single host)</td></tr>
+    </tbody>
+  </table></div>
+  <p>The quick formula: host bits = 32 − CIDR. Total addresses = 2<sup>host bits</sup>. Usable = total − 2.</p>
+  <div class="bin">/26 mask   <span class="n">11111111.11111111.11111111.11</span><span class="h">000000</span>   = 255.255.255.192
+           26 network bits, 6 host bits → 2⁶ = 64 addresses, 62 usable</div>
+  <details class="check"><summary>You need a subnet for 25 cameras. What's the smallest CIDR that fits?</summary><div><p><strong>/27</strong> gives 30 usable hosts. A /28 only gives 14.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="cidr"> I've got this</label>
+</section>
+
+<section id="calc">
+  <h2><small>Hands on</small>Subnet calculator</h2>
+  <p>Type any IPv4 address and a CIDR prefix. It works out the rest and shows you the binary, with the <span class="n">network bits</span> and <span class="h">host bits</span> coloured.</p>
+  <form class="calc" id="calcform" autocomplete="off">
+    <div class="row">
+      <label for="c-ip">IP address<input id="c-ip" value="192.168.1.77" inputmode="decimal" spellcheck="false"></label>
+      <label for="c-cidr">CIDR /<input id="c-cidr" type="number" min="0" max="32" value="26"></label>
+    </div>
+    <p class="err" id="c-err" role="alert"></p>
+    <dl id="c-out">
+      <div><dt>Subnet mask</dt><dd id="o-mask">–</dd></div>
+      <div><dt>Network address</dt><dd id="o-net">–</dd></div>
+      <div><dt>Broadcast</dt><dd id="o-bc">–</dd></div>
+      <div><dt>First usable</dt><dd id="o-first">–</dd></div>
+      <div><dt>Last usable</dt><dd id="o-last">–</dd></div>
+      <div><dt>Usable hosts</dt><dd id="o-hosts">–</dd></div>
+      <div><dt>Address type</dt><dd id="o-type">–</dd></div>
+    </dl>
+    <div class="bin" id="o-bin" aria-label="Binary view"></div>
+    <p class="key">Try 10.20.30.40 /8, 172.16.5.9 /20, or 8.8.8.8 /32.</p>
+  </form>
+  <label class="got"><input type="checkbox" data-sec="calc"> I've played with it</label>
+</section>
+
+<section id="pubpriv">
+  <h2><small>Addressing</small>Public vs private addresses</h2>
+  <div class="plain" data-label="In plain English"><p><strong>Private</strong> addresses are for inside your home or office and can be reused by everyone. <strong>Public</strong> addresses are unique across the whole internet. Your router swaps between the two using <strong>NAT</strong>.</p></div>
+  <h3>Private ranges (RFC 1918)</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Range</th><th>CIDR</th><th>Typically seen</th></tr></thead>
+    <tbody>
+      <tr><td><code>10.0.0.0 – 10.255.255.255</code></td><td><code>10.0.0.0/8</code></td><td>Large businesses</td></tr>
+      <tr><td><code>172.16.0.0 – 172.31.255.255</code></td><td><code>172.16.0.0/12</code></td><td>Businesses, Docker</td></tr>
+      <tr><td><code>192.168.0.0 – 192.168.255.255</code></td><td><code>192.168.0.0/16</code></td><td>Home routers</td></tr>
+    </tbody>
+  </table></div>
+  <p>These are <strong>not routable on the internet</strong>. Millions of homes use <code>192.168.1.0/24</code> at the same time with no conflict, because those addresses never leave the house.</p>
+  <h3>Other special ranges worth knowing</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Range</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td><code>127.0.0.0/8</code></td><td>Loopback. <code>127.0.0.1</code> is "this computer".</td></tr>
+      <tr><td><code>169.254.0.0/16</code></td><td>Link-local. If your PC has one of these, <strong>DHCP failed</strong>.</td></tr>
+      <tr><td><code>100.64.0.0/10</code></td><td>Carrier-grade NAT, used by ISPs and mobile networks.</td></tr>
+      <tr><td><code>224.0.0.0/4</code></td><td>Multicast.</td></tr>
+      <tr><td><code>192.0.2.0/24</code>, <code>198.51.100.0/24</code>, <code>203.0.113.0/24</code></td><td>Reserved for documentation and examples. Safe to use in tutorials.</td></tr>
+      <tr><td><code>0.0.0.0/8</code>, <code>240.0.0.0/4</code></td><td>Reserved / "this network". <code>255.255.255.255</code> is broadcast.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>So what's public?</h3>
+  <p>Simple: <strong>almost everything else</strong>. Any IPv4 address that isn't in one of the reserved ranges above is a public, internet-routable address, handed out by regional registries (RIPE NCC for Europe, ARIN for North America, and so on) to ISPs and organisations.</p>
+  <h3>NAT</h3>
+  <p>Your ISP gives your router one public address. Every device in your house has a private one. When your laptop browses the web, the router swaps the private source address for its public one, remembers which device asked, and swaps it back when the reply comes in. That's <strong>Network Address Translation</strong>.</p>
+  <div class="term"><header><span>try it · private vs public</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> ip addr                        <span class="c"># your private address</span>
+<span class="p">$</span> curl https://ifconfig.me       <span class="c"># your public address, as the internet sees it</span></pre></div>
+  <details class="check"><summary>Your laptop shows 169.254.33.12. What's wrong?</summary><div><p>It couldn't get an address from DHCP, so it gave itself a link-local one. Check the cable or Wi-Fi, and check the DHCP server.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="pubpriv"> I've got this</label>
+</section>
+
+<section id="ipv6">
+  <h2><small>Addressing</small>IPv6 in two minutes</h2>
+  <div class="plain" data-label="In plain English"><p>IPv4 has about 4.3 billion addresses and we ran out. IPv6 has 128-bit addresses, which is enough to give every grain of sand its own network. It's already running on your phone.</p></div>
+  <p>An IPv6 address looks like <code>2001:0db8:0000:0000:0000:ff00:0042:8329</code>. You can drop leading zeros and replace one run of zero groups with <code>::</code>, giving <code>2001:db8::ff00:42:8329</code>.</p>
+  <ul>
+    <li><code>::1</code> is loopback (like 127.0.0.1).</li>
+    <li>Addresses starting <code>fe80::</code> are link-local.</li>
+    <li>Subnets are almost always <code>/64</code>.</li>
+    <li>There's no ARP; IPv6 uses Neighbor Discovery instead. No broadcast either.</li>
+  </ul>
+  <p>Security note: many networks are carefully firewalled on IPv4 and wide open on IPv6 because nobody thought about it. Check both.</p>
+  <label class="got"><input type="checkbox" data-sec="ipv6"> I've got this</label>
+</section>
+
+<!-- =================== PROTOCOLS =================== -->
+<div class="part">Chapter 3 · Networking: protocols</div>
+
+<section id="dns">
+  <h2><small>Protocols · UDP/TCP 53</small>DNS</h2>
+  <div class="plain" data-label="In plain English"><p>DNS is the internet's phone book. You type a name like <code>example.com</code>; DNS looks up the number (the IP address) so your computer knows where to go. Without it you'd have to memorise IP addresses for every site you use.</p></div>
+  <h3>How names are structured</h3>
+  <p>Read a domain name <strong>right to left</strong>, from most general to most specific:</p>
+  <div class="bin">   www   .   example   .   com   .
+    │           │            │      └─ root (the invisible dot)
+    │           │            └─ Top-Level Domain (TLD): .com, .org, .uk
+    │           └─ Second-Level Domain: what people call "the domain"
+    └─ subdomain / host</div>
+  <p>Domains are registered through registrars (GoDaddy, Namecheap and so on) under rules set by ICANN. The owner of <code>example.com</code> can then create as many subdomains as they like, such as <code>mail.example.com</code> or <code>dev.app.example.com</code>.</p>
+  <h3>Who's involved</h3>
+  <ul>
+    <li><strong>Resolver</strong> (recursive resolver): does the legwork on your behalf. Usually your ISP's, your router's, or a public one like 1.1.1.1 or 8.8.8.8.</li>
+    <li><strong>Root servers</strong>: know where every TLD's servers are.</li>
+    <li><strong>TLD servers</strong>: know which servers are authoritative for each domain in their TLD.</li>
+    <li><strong>Authoritative name servers</strong>: hold the actual records for a domain and give the final answer.</li>
+  </ul>
+  <h3>A lookup, step by step</h3>
+  <ol class="flow">
+    <li><b>You type www.example.com</b><span>Your computer checks its own cache first, then asks its configured resolver.</span></li>
+    <li><b>Resolver checks its cache</b><span>If it already knows the answer (and it hasn't expired), it replies immediately. Done.</span></li>
+    <li><b>Resolver asks a root server</b><span>"Where's .com?" The root replies with the addresses of the .com TLD servers.</span></li>
+    <li><b>Resolver asks the .com TLD server</b><span>"Where's example.com?" It replies with example.com's authoritative name servers.</span></li>
+    <li><b>Resolver asks the authoritative server</b><span>"What's the A record for www.example.com?" It gets the IP address.</span></li>
+    <li><b>Resolver answers you and caches it</b><span>Your browser connects to that IP. The answer is kept for its TTL.</span></li>
+  </ol>
+  <h3>Caching and TTL</h3>
+  <p>Every answer comes with a <strong>Time To Live</strong> in seconds. Until it runs out, resolvers reuse the cached answer instead of repeating the whole lookup. That's why DNS changes can take a while to "propagate".</p>
+  <h3>Record types</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Record</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>A</code></td><td>Name → IPv4 address</td></tr>
+      <tr><td><code>AAAA</code></td><td>Name → IPv6 address</td></tr>
+      <tr><td><code>CNAME</code></td><td>Alias: this name is really that other name</td></tr>
+      <tr><td><code>MX</code></td><td>Which servers receive email for the domain</td></tr>
+      <tr><td><code>NS</code></td><td>Which servers are authoritative for the domain</td></tr>
+      <tr><td><code>TXT</code></td><td>Free text; used for SPF, DKIM, DMARC and domain verification</td></tr>
+      <tr><td><code>PTR</code></td><td>Reverse lookup: IP → name</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Security</h3>
+  <p>Classic DNS is unencrypted and unauthenticated, so it can be spied on and spoofed. <strong>DNSSEC</strong> adds digital signatures so you can prove an answer is genuine. <strong>DNS over HTTPS / TLS</strong> encrypts the lookups so others on the network can't read them.</p>
+  <div class="term"><header><span>try it · ask DNS yourself</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> nslookup example.com
+<span class="p">$</span> dig example.com A
+<span class="p">$</span> dig example.com MX
+<span class="p">$</span> dig +trace example.com         <span class="c"># watch the root → TLD → authoritative walk</span></pre></div>
+  <details class="check"><summary>You change a website's IP, but some people still reach the old server. Why?</summary><div><p>Resolvers cached the old A record and will keep using it until its TTL expires.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="dns"> I've got this</label>
+</section>
+
+<section id="dhcp">
+  <h2><small>Protocols · UDP 67/68</small>DHCP</h2>
+  <div class="plain" data-label="In plain English"><p>When you join a network, DHCP automatically gives you an IP address, subnet mask, default gateway and DNS server. Without it, someone would have to type those into every device by hand.</p></div>
+  <p>DHCP works on a client/server model. The conversation has four steps, remembered as <strong>DORA</strong>:</p>
+  <ol class="flow">
+    <li><b>Discover</b><span class="arrow">client → everyone (broadcast 255.255.255.255)</span><span>"I've just arrived and have no address. Any DHCP servers out there?"</span></li>
+    <li><b>Offer</b><span class="arrow">server → client</span><span>"You can have 192.168.1.50, mask 255.255.255.0, gateway .1, DNS .1, for 24 hours."</span></li>
+    <li><b>Request</b><span class="arrow">client → everyone</span><span>"I'll take the offer from that server, please." Broadcast, so other servers know they weren't chosen.</span></li>
+    <li><b>Acknowledge</b><span class="arrow">server → client</span><span>"Confirmed. It's yours." The client configures itself.</span></li>
+  </ol>
+  <h3>Leases</h3>
+  <p>Addresses are <strong>leased</strong>, not given forever. Around halfway through the lease the client asks to renew. If a device leaves and never renews, the address goes back into the pool for someone else. That's how a café with 50 addresses can serve hundreds of customers a day.</p>
+  <h3>The moving parts</h3>
+  <ul>
+    <li><strong>DHCP server</strong>: holds the pool of addresses (the <em>scope</em>) and the settings to hand out. Often your router; in a business, often a Windows server.</li>
+    <li><strong>DHCP client</strong>: any device asking for an address: PCs, phones, printers, TVs.</li>
+    <li><strong>DHCP relay</strong>: DHCP uses broadcasts, which don't cross routers. A relay agent on each subnet forwards requests to a central server.</li>
+    <li><strong>Reservations</strong>: always give the same address to a specific MAC address. Handy for printers and servers.</li>
+  </ul>
+  <div class="warn" data-label="Security"><p>DHCP has no authentication. Anyone can plug in a <strong>rogue DHCP server</strong> and hand out themselves as the gateway, putting their machine in the middle of everyone's traffic. Managed switches stop this with a feature called <strong>DHCP snooping</strong>.</p></div>
+  <div class="term"><header><span>try it · renew your lease</span><button class="copy" type="button">Copy</button></header><pre><span class="c"># Windows</span>
+<span class="p">&gt;</span> ipconfig /release
+<span class="p">&gt;</span> ipconfig /renew
+<span class="c"># Linux (NetworkManager)</span>
+<span class="p">$</span> nmcli connection down "Wired connection 1" &amp;&amp; nmcli connection up "Wired connection 1"</pre></div>
+  <details class="check"><summary>What does DORA stand for?</summary><div><p>Discover, Offer, Request, Acknowledge.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="dhcp"> I've got this</label>
+</section>
+
+<section id="arp">
+  <h2><small>Protocols · Layer 2</small>ARP</h2>
+  <div class="plain" data-label="In plain English"><p>Inside a local network, frames are delivered by MAC address, not IP. ARP (Address Resolution Protocol) is how a device finds out "which MAC address owns this IP?" It shouts the question to everyone, and the owner answers.</p></div>
+  <ol class="flow">
+    <li><b>ARP request (broadcast)</b><span>"Who has 192.168.1.1? Tell 192.168.1.50."</span></li>
+    <li><b>ARP reply (unicast)</b><span>"192.168.1.1 is at 3c:22:fb:9a:10:4e."</span></li>
+    <li><b>Cache it</b><span>The answer goes in the ARP table for a few minutes so it doesn't need to ask again.</span></li>
+  </ol>
+  <p>When you talk to something on another network, your PC ARPs for the <strong>default gateway's</strong> MAC, and the router takes it from there.</p>
+  <div class="warn" data-label="Security: ARP spoofing"><p>ARP trusts whatever reply it gets, even ones nobody asked for. An attacker on the same network can keep announcing "the gateway is at <em>my</em> MAC", and everyone's traffic flows through their machine. That's a classic <strong>man-in-the-middle</strong> attack. Defences: Dynamic ARP Inspection on managed switches, network segmentation, and encrypting everything (HTTPS, SSH) so intercepted traffic is useless.</p></div>
+  <div class="term"><header><span>try it · see your ARP table</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> ip neigh       <span class="c"># Linux</span>
+<span class="p">&gt;</span> arp -a         <span class="c"># Windows / macOS</span></pre></div>
+  <details class="check"><summary>Does ARP work across a router?</summary><div><p>No. ARP is a broadcast and broadcasts stop at the router. It only works within one local network.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="arp"> I've got this</label>
+</section>
+
+<section id="smb">
+  <h2><small>Protocols · TCP 445</small>SMB</h2>
+  <div class="plain" data-label="In plain English"><p>SMB (Server Message Block) is how Windows shares files and printers. When you open <code>\\fileserver\shared</code>, that's SMB. Linux and macOS speak it too (Samba).</p></div>
+  <ul>
+    <li>Runs on TCP <strong>445</strong>. Older setups also used NetBIOS on 137–139.</li>
+    <li>Versions: <strong>SMBv1</strong> (ancient, dangerous), SMBv2, and <strong>SMBv3</strong> (supports encryption; use this).</li>
+    <li>Access is controlled by share permissions plus file (NTFS) permissions. Users usually authenticate with their Windows/domain account.</li>
+  </ul>
+  <h3>Why attackers love it</h3>
+  <ul>
+    <li><strong>EternalBlue (MS17-010)</strong>: a flaw in SMBv1 that let attackers run code on unpatched Windows machines. In 2017 it powered <strong>WannaCry</strong>, which hit the NHS and organisations across the world, and NotPetya.</li>
+    <li>Open shares with "Everyone: Full control" leak data constantly.</li>
+    <li>SMB lets attackers move sideways between machines once they're inside a network.</li>
+  </ul>
+  <div class="warn" data-label="Defence"><p>Disable SMBv1. Never expose port 445 to the internet. Patch. Give shares the least access needed. Turn on SMB signing.</p></div>
+  <div class="term"><header><span>try it · your own lab only</span><button class="copy" type="button">Copy</button></header><pre><span class="c"># list shares on a machine you own</span>
+<span class="p">$</span> smbclient -L //192.168.1.20 -U yourname
+<span class="c"># Windows: is SMBv1 still on?</span>
+<span class="p">&gt;</span> Get-SmbServerConfiguration | Select EnableSMB1Protocol</pre></div>
+  <details class="check"><summary>Which SMB version did EternalBlue exploit?</summary><div><p>SMBv1. That's why the first fix is to turn it off.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="smb"> I've got this</label>
+</section>
+
+<section id="smtp">
+  <h2><small>Protocols · TCP 25 / 587 / 465</small>SMTP</h2>
+  <div class="plain" data-label="In plain English"><p>SMTP (Simple Mail Transfer Protocol) is how email is <strong>sent</strong> and passed between mail servers. Reading your email uses different protocols: IMAP or POP3.</p></div>
+  <h3>Journey of an email</h3>
+  <ol class="flow">
+    <li><b>You hit Send</b><span>Your mail app hands the message to your provider's server over port 587 (or 465), after logging in.</span></li>
+    <li><b>DNS MX lookup</b><span>Your server looks up the MX record for the recipient's domain to find their mail server.</span></li>
+    <li><b>Server to server</b><span>Your server delivers it to theirs over port 25.</span></li>
+    <li><b>Recipient reads it</b><span>Their mail app fetches it with IMAP (143/993) or POP3 (110/995).</span></li>
+  </ol>
+  <p>SMTP is a plain-text conversation. The commands are readable: <code>EHLO</code>, <code>MAIL FROM</code>, <code>RCPT TO</code>, <code>DATA</code>, <code>QUIT</code>.</p>
+  <h3>The big flaw: anyone can claim to be anyone</h3>
+  <p>SMTP was designed in 1982 for a friendly network. Nothing in the protocol checks the "From" address, which is why phishing emails can claim to be from your bank. Three DNS records fix this:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Record</th><th>Says</th></tr></thead>
+    <tbody>
+      <tr><td><b>SPF</b></td><td>"These servers are allowed to send mail for my domain."</td></tr>
+      <tr><td><b>DKIM</b></td><td>"Mail from me is digitally signed. Here's the public key to check it."</td></tr>
+      <tr><td><b>DMARC</b></td><td>"If a message fails SPF/DKIM, reject it (or quarantine it), and send me reports."</td></tr>
+    </tbody>
+  </table></div>
+  <div class="term"><header><span>try it · check a domain's email security</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> dig example.com MX
+<span class="p">$</span> dig example.com TXT              <span class="c"># look for v=spf1 ...</span>
+<span class="p">$</span> dig _dmarc.example.com TXT       <span class="c"># look for v=DMARC1 ...</span></pre></div>
+  <details class="check"><summary>A domain has no DMARC record. What does that mean for phishing?</summary><div><p>Receiving servers have no instruction to reject mail that fakes that domain, so spoofed emails are far more likely to land in inboxes.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="smtp"> I've got this</label>
+</section>
+
+<section id="http">
+  <h2><small>Protocols · TCP 80 / 443</small>HTTP &amp; HTTPS</h2>
+  <div class="plain" data-label="In plain English"><p>HTTP is how browsers and web servers talk. The browser sends a <strong>request</strong> ("give me this page"), the server sends a <strong>response</strong> (the page, plus a status code). HTTPS is exactly the same conversation inside an encrypted TLS tunnel.</p></div>
+  <h3>A real request and response</h3>
+  <div class="term"><header><span>what actually goes over the wire</span><button class="copy" type="button">Copy</button></header><pre>GET /index.html HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Cookie: session=abc123
+
+<span class="c">---- response ----</span>
+HTTP/1.1 200 OK
+Content-Type: text/html
+Set-Cookie: session=abc123; Secure; HttpOnly
+
+&lt;html&gt;...</pre></div>
+  <h3>Methods</h3>
+  <p><code>GET</code> fetches. <code>POST</code> sends data (forms, logins). <code>PUT</code> replaces, <code>PATCH</code> updates, <code>DELETE</code> deletes. <code>HEAD</code> is a GET without the body.</p>
+  <h3>Status codes</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Range</th><th>Meaning</th><th>Common ones</th></tr></thead>
+    <tbody>
+      <tr><td><code>2xx</code></td><td>Success</td><td><code>200 OK</code>, <code>201 Created</code></td></tr>
+      <tr><td><code>3xx</code></td><td>Go somewhere else</td><td><code>301 Moved Permanently</code>, <code>302 Found</code></td></tr>
+      <tr><td><code>4xx</code></td><td>You got it wrong</td><td><code>401 Unauthorized</code>, <code>403 Forbidden</code>, <code>404 Not Found</code></td></tr>
+      <tr><td><code>5xx</code></td><td>The server broke</td><td><code>500 Internal Server Error</code>, <code>503 Service Unavailable</code></td></tr>
+    </tbody>
+  </table></div>
+  <h3>Stateless, so cookies</h3>
+  <p>HTTP forgets you between requests. Websites remember you're logged in by giving your browser a <strong>cookie</strong> that it sends back every time. Steal someone's session cookie and you're logged in as them, which is why cookies should be marked <code>Secure</code> and <code>HttpOnly</code>.</p>
+  <h3>HTTPS</h3>
+  <p>The padlock means the connection is encrypted and the server proved its identity with a certificate. It does <strong>not</strong> mean the site is trustworthy. Phishing sites have padlocks too.</p>
+  <div class="term"><header><span>try it</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> curl -I https://example.com       <span class="c"># just the response headers</span>
+<span class="p">$</span> curl -v https://example.com       <span class="c"># everything, including the TLS handshake</span></pre></div>
+  <p>Or press <kbd>F12</kbd> in your browser and open the <strong>Network</strong> tab, then reload any page.</p>
+  <details class="check"><summary>You get a 403. Is the page missing?</summary><div><p>No. 403 means it exists but you're not allowed to see it. Missing is 404.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="http"> I've got this</label>
+</section>
+
+<!-- =================== DEFEND =================== -->
+<div class="part">Defend &amp; observe</div>
+
+<section id="firewalls">
+  <h2><small>Security</small>Firewalls</h2>
+  <div class="plain" data-label="In plain English"><p>A firewall is a bouncer with a list. Every piece of traffic gets checked against the rules, top to bottom. If it matches an "allow" it gets in. If nothing matches, the last rule should be "deny everything else".</p></div>
+  <h3>Types</h3>
+  <ul>
+    <li><strong>Packet filter (stateless)</strong>: checks each packet on its own: source, destination, port, protocol. Fast and dumb.</li>
+    <li><strong>Stateful</strong>: remembers connections. If you started a conversation, it lets the replies back in automatically. Most firewalls today.</li>
+    <li><strong>Next-generation (NGFW)</strong>: understands applications and users, not just ports. Can block "BitTorrent" even if it hides on port 443.</li>
+    <li><strong>Web Application Firewall (WAF)</strong>: sits in front of websites and blocks attacks like SQL injection.</li>
+    <li><strong>Host-based</strong>: runs on the computer itself. Windows Defender Firewall, <code>ufw</code>/<code>nftables</code> on Linux.</li>
+  </ul>
+  <h3>Reading a rule set</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>Action</th><th>From</th><th>To</th><th>Port</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td style="color:var(--lime)">ALLOW</td><td>Any</td><td>Web server</td><td>443</td><td>Public website</td></tr>
+      <tr><td>2</td><td style="color:var(--lime)">ALLOW</td><td>IT subnet</td><td>Servers</td><td>22</td><td>Admins can SSH</td></tr>
+      <tr><td>3</td><td style="color:var(--red)">DENY</td><td>Guest Wi-Fi</td><td>Internal</td><td>Any</td><td>Guests get internet only</td></tr>
+      <tr><td>4</td><td style="color:var(--red)">DENY</td><td>Any</td><td>Any</td><td>Any</td><td>Default deny</td></tr>
+    </tbody>
+  </table></div>
+  <p>Order matters. Most firewalls stop at the <strong>first match</strong>, so a broad "allow" near the top can make everything below it pointless.</p>
+  <p>Don't forget <strong>egress</strong> (outbound) rules. Malware needs to phone home. A server that only ever needs to talk to its database shouldn't be able to reach the whole internet.</p>
+  <div class="term"><header><span>try it · simple Linux host firewall</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> sudo ufw default deny incoming
+<span class="p">$</span> sudo ufw default allow outgoing
+<span class="p">$</span> sudo ufw allow 22/tcp
+<span class="p">$</span> sudo ufw enable
+<span class="p">$</span> sudo ufw status numbered</pre></div>
+  <details class="check"><summary>Rule 1 is "ALLOW any → any port 80". Rule 2 is "DENY 10.0.0.5 → any". Can 10.0.0.5 browse on port 80?</summary><div><p>Yes. Rule 1 matches first and the firewall stops looking. Put specific denies above broad allows.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="firewalls"> I've got this</label>
+</section>
+
+<section id="analysis">
+  <h2><small>Skills</small>Network analysis</h2>
+  <div class="plain" data-label="In plain English"><p>Network analysis means looking at the actual traffic on the wire, packet by packet. It's how you troubleshoot, how you spot attackers, and how you really learn everything on this page. Reading about DHCP is fine. Watching DORA happen live is how it sticks.</p></div>
+  <h3>The tools</h3>
+  <ul>
+    <li><strong><a href="https://www.wireshark.org/" rel="noopener">Wireshark</a></strong>: the graphical packet analyser. Free. Install it today.</li>
+    <li><strong>tcpdump</strong>: command-line capture. On every Linux box and great on servers.</li>
+    <li><strong><a href="https://nmap.org/" rel="noopener">Nmap</a></strong>: discovers hosts and open ports. Read its free online book.</li>
+    <li><strong>ping / traceroute / mtr</strong>: is it up, and which way does the traffic go?</li>
+  </ul>
+  <h3>Wireshark display filters to start with</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Filter</th><th>Shows</th></tr></thead>
+    <tbody>
+      <tr><td><code>dns</code></td><td>DNS lookups and answers</td></tr>
+      <tr><td><code>dhcp</code></td><td>DORA in action (reconnect your Wi-Fi while capturing)</td></tr>
+      <tr><td><code>arp</code></td><td>"Who has…? Tell…"</td></tr>
+      <tr><td><code>ip.addr == 192.168.1.50</code></td><td>Everything to or from one device</td></tr>
+      <tr><td><code>tcp.flags.syn == 1 &amp;&amp; tcp.flags.ack == 0</code></td><td>New TCP connections starting (SYNs)</td></tr>
+      <tr><td><code>http.request</code></td><td>Unencrypted web requests</td></tr>
+    </tbody>
+  </table></div>
+  <div class="term"><header><span>try it · your own network</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> sudo tcpdump -i any -n port 53      <span class="c"># watch DNS, then browse somewhere</span>
+<span class="p">$</span> traceroute example.com             <span class="c"># Windows: tracert example.com</span>
+<span class="p">$</span> nmap -sn 192.168.1.0/24            <span class="c"># which devices are on MY home network?</span></pre></div>
+  <div class="warn" data-label="Legal"><p>Capturing traffic or port-scanning networks you don't own or have written permission to test is illegal in the UK (Computer Misuse Act 1990) and most other places. That includes work, school, and the coffee-shop Wi-Fi. Your own home network and your own virtual lab are fine.</p></div>
+  <details class="check"><summary>Which Wireshark filter shows only traffic to and from 10.0.0.9?</summary><div><p><code>ip.addr == 10.0.0.9</code></p></div></details>
+  <label class="got"><input type="checkbox" data-sec="analysis"> I've got this</label>
+</section>
+
+<section id="wireless">
+  <h2><small>Radio</small>Wireless protocols</h2>
+  <div class="plain" data-label="In plain English"><p>Wireless is just networking where the cable is replaced by radio. The catch: radio goes everywhere, through walls and into the car park, so anyone nearby can hear it. Encryption isn't optional.</p></div>
+  <h3>Wi-Fi (IEEE 802.11)</h3>
+  <ul>
+    <li><strong>2.4 GHz</strong>: longer range, goes through walls better, crowded. Only channels 1, 6 and 11 don't overlap.</li>
+    <li><strong>5 GHz</strong>: faster, more channels, shorter range.</li>
+    <li><strong>6 GHz</strong> (Wi-Fi 6E / 7): very fast, very clean, short range.</li>
+  </ul>
+  <div class="tbl"><table>
+    <thead><tr><th>Security</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><b>Open</b></td><td style="color:var(--red)">Anyone can read your traffic.</td></tr>
+      <tr><td><b>WEP</b></td><td style="color:var(--red)">Broken. Cracked in minutes. Never.</td></tr>
+      <tr><td><b>WPA2-Personal (PSK)</b></td><td style="color:var(--amber)">OK with a long, random passphrase. A captured handshake can be guessed offline if the password is weak.</td></tr>
+      <tr><td><b>WPA3-Personal (SAE)</b></td><td style="color:var(--lime)">Current standard. Resists offline guessing.</td></tr>
+      <tr><td><b>WPA2/3-Enterprise (802.1X)</b></td><td style="color:var(--lime)">Each user logs in with their own credentials. What businesses should use.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Also turn off <strong>WPS</strong> (the push-button pairing feature). It has well-known weaknesses.</p>
+  <h3>The other wireless you're surrounded by</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Tech</th><th>Frequency</th><th>Range</th><th>Used for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Bluetooth / BLE</b></td><td>2.4 GHz</td><td>~10 m</td><td>Headphones, fitness trackers, smart locks</td></tr>
+      <tr><td><b>Zigbee / Thread</b></td><td>2.4 GHz</td><td>~10–20 m, mesh</td><td>Smart home sensors and bulbs</td></tr>
+      <tr><td><b>LoRa / LoRaWAN</b></td><td>868 MHz (EU), 915 MHz (US)</td><td>Kilometres</td><td>Low-power sensors, smart meters, farms</td></tr>
+      <tr><td><b>NFC</b></td><td>13.56 MHz</td><td>~4 cm</td><td>Contactless payments, phone tap</td></tr>
+      <tr><td><b>RFID (low freq)</b></td><td>125 kHz</td><td>Few cm</td><td>Old door access fobs, often easily cloned</td></tr>
+    </tbody>
+  </table></div>
+  <details class="check"><summary>Your neighbour's Wi-Fi uses WEP. Why is that bad for them?</summary><div><p>WEP can be cracked in minutes, so anyone in range can join their network and read their traffic. (And no, you don't test that on their network.)</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="wireless"> I've got this</label>
+</section>
+
+<!-- =================== ICS =================== -->
+<div class="part">ICS / OT · Industrial Control Systems</div>
+
+<section id="ics">
+  <h2><small>Read this first</small>An introduction to ICS, and why you should NEVER attempt to hack it</h2>
+  <div class="plain" data-label="In plain English"><p>Industrial Control Systems (ICS), also called Operational Technology (OT), are the computers that run physical things: water treatment, power grids, factories, gas pipelines, traffic lights, hospital systems. When IT breaks, you lose data. When OT breaks, <strong>things explode, flood, poison or kill people</strong>.</p></div>
+  <h3>Why "just having a look" is a terrible idea</h3>
+  <ul>
+    <li><strong>It's fragile.</strong> A lot of OT kit is 20–30 years old and was never designed to see unexpected traffic. Simple network scans have been known to crash controllers and stop production lines.</li>
+    <li><strong>Safety comes first, security second.</strong> In IT the priority is confidentiality. In OT it's keeping the process running safely. You can't just "reboot to fix it" when the process is a chemical reactor.</li>
+    <li><strong>It's critical national infrastructure.</strong> Attacks on it are treated as national security matters. Expect serious prison time, not a slap on the wrist.</li>
+    <li><strong>The protocols have no security.</strong> Many will accept a "stop" or "open valve" command from anyone who can reach them. It's not clever to send one; it's reckless.</li>
+  </ul>
+  <h3>The real incidents you should read about</h3>
+  <ul>
+    <li><strong>Stuxnet (discovered 2010)</strong>: malware that damaged Iranian uranium centrifuges by quietly changing PLC logic while showing operators normal readings.</li>
+    <li><strong>Ukraine power grid (2015, 2016)</strong>: attackers remotely opened breakers and cut power to around 225,000 people.</li>
+    <li><strong>Triton / Trisis (2017)</strong>: malware that targeted the <em>safety systems</em> of a petrochemical plant, the last line of defence that stops explosions.</li>
+  </ul>
+  <div class="warn" data-label="The rule for this whole chapter"><p>Learn ICS with <strong>simulators and your own bench kit</strong>. Never touch a real system you find online. Good free starting points: <a href="https://autonomylogic.com/" rel="noopener">OpenPLC</a> (a free PLC you can run on a Raspberry Pi or PC), ModbusPal or pymodbus (Modbus simulators), and the free ICS resources from <a href="https://www.cisa.gov/topics/industrial-control-systems" rel="noopener">CISA</a>.</p></div>
+  <label class="got"><input type="checkbox" data-sec="ics"> I understand. I will never touch real ICS.</label>
+</section>
+
+<section id="shodan">
+  <h2><small>ICS / OT</small>Shodan</h2>
+  <div class="plain" data-label="In plain English"><p>Google indexes web pages. <a href="https://www.shodan.io/" rel="noopener">Shodan</a> indexes <strong>devices</strong>. It constantly scans the internet and records what answers: webcams, routers, servers, and, worryingly, industrial controllers that should never have been online.</p></div>
+  <p>Shodan stores each device's <strong>banner</strong>: the text a service sends back when you connect, which often reveals the product, version and sometimes the organisation.</p>
+  <h3>Example searches</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Search</th><th>Finds</th></tr></thead>
+    <tbody>
+      <tr><td><code>port:502</code></td><td>Devices answering on Modbus TCP</td></tr>
+      <tr><td><code>port:3389 country:GB</code></td><td>Exposed Remote Desktop in the UK</td></tr>
+      <tr><td><code>product:"Apache httpd"</code></td><td>Apache web servers</td></tr>
+      <tr><td><code>net:203.0.113.0/24</code></td><td>Everything Shodan knows about one address range</td></tr>
+    </tbody>
+  </table></div>
+  <p>Defenders use Shodan to check what their own organisation is accidentally exposing. Researchers use it to measure how many vulnerable devices exist. Shodan does the scanning; you're reading its results.</p>
+  <div class="warn" data-label="Look, don't touch"><p>Reading Shodan results is legal. <strong>Connecting to what you find is not.</strong> Logging into an exposed HMI, trying default passwords, or sending a single Modbus command to a device you don't own is unauthorised access. If you find something genuinely dangerous, report it to your national CERT (in the UK, the NCSC) and walk away.</p></div>
+  <details class="check"><summary>Search your own home's public IP on Shodan. What's the best result?</summary><div><p>Nothing at all. If something shows up, you have a port open to the internet you probably didn't intend.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="shodan"> I've got this</label>
+</section>
+
+<section id="purdue">
+  <h2><small>ICS / OT</small>The Purdue Model</h2>
+  <div class="plain" data-label="In plain English"><p>The Purdue Model (from Purdue University, 1990s) splits an industrial organisation into levels, from the physical machinery at the bottom to email and the internet at the top. The point is <strong>separation</strong>: each level should only talk to the levels next to it, so someone who phishes an office PC can't reach the valves.</p></div>
+  <div class="stack" aria-label="Purdue model levels, top to bottom">
+    <div class="layer"><span class="num">5</span><div><b>Enterprise network</b><p>Corporate IT, internet access, cloud services.</p></div></div>
+    <div class="layer"><span class="num">4</span><div><b>Business planning &amp; logistics</b><p>ERP, email, office PCs, scheduling.</p></div></div>
+    <div class="layer dmz"><span class="num">3.5</span><div><b>Industrial DMZ</b><p>The buffer zone. Nothing passes straight from IT to OT; traffic stops here (patch servers, jump hosts, data replicas).</p></div></div>
+    <div class="layer"><span class="num">3</span><div><b>Site operations</b><p>Historians (process databases), MES, site-wide servers.</p></div></div>
+    <div class="layer"><span class="num">2</span><div><b>Supervisory control</b><p>HMIs and SCADA servers. Where operators watch and control.</p></div></div>
+    <div class="layer"><span class="num">1</span><div><b>Basic control</b><p>PLCs, RTUs, safety controllers. Making decisions in milliseconds.</p></div></div>
+    <div class="layer"><span class="num">0</span><div><b>Physical process</b><p>Sensors, motors, pumps, valves. The actual stuff.</p></div></div>
+  </div>
+  <p>Levels 0–3 are OT. Levels 4–5 are IT. The 3.5 DMZ between them is where most of the security effort goes.</p>
+  <p>In real life the neat layers are often blurred by remote access for vendors, cloud monitoring and "temporary" connections that became permanent. That's exactly where attackers get in.</p>
+  <details class="check"><summary>An attacker phishes someone in accounts. Which Purdue level are they on, and what should stop them going further?</summary><div><p>Level 4. The industrial DMZ (3.5) and its firewalls should stop them reaching levels 3 and below.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="purdue"> I've got this</label>
+</section>
+
+<section id="plc">
+  <h2><small>ICS / OT · Level 1</small>PLCs</h2>
+  <div class="plain" data-label="In plain English"><p>A PLC (Programmable Logic Controller) is a tough little computer that controls machinery. It reads sensors, runs a simple program, and switches motors and valves on or off, over and over, thousands of times a minute, for years without a reboot.</p></div>
+  <h3>The scan cycle</h3>
+  <ol class="flow">
+    <li><b>Read inputs</b><span>Check every sensor: is the tank full? Is the guard door shut? Is the button pressed?</span></li>
+    <li><b>Run the program</b><span>Work through the logic using those input values.</span></li>
+    <li><b>Write outputs</b><span>Turn pumps, motors, lights and valves on or off.</span></li>
+    <li><b>Repeat</b><span>Typically every few milliseconds, forever.</span></li>
+  </ol>
+  <h3>Ladder logic</h3>
+  <p>PLCs are commonly programmed in <strong>ladder logic</strong>, which looks like an electrical wiring diagram because it was designed for electricians. Other languages (function block, structured text) are defined in the IEC 61131-3 standard.</p>
+  <div class="ladder">  Start      Stop     Guard door
+──┤ ├──┬────┤/├────────┤ ├──────────( Motor )──
+       │
+ Motor │
+──┤ ├──┘
+
+"Run the motor if Start is pressed (or it's already running),
+ and Stop is NOT pressed, and the guard door is closed."</div>
+  <p>Big names: Siemens (S7), Rockwell / Allen-Bradley, Schneider Electric (Modicon), Mitsubishi, Omron.</p>
+  <div class="warn" data-label="Why they're a target"><p>Many PLCs accept new programs over the network with no password. Change the logic and you change what the machine physically does. That's what Stuxnet did.</p></div>
+  <p><strong>Learn safely:</strong> install OpenPLC on a spare PC or a Raspberry Pi and write ladder logic to light an LED.</p>
+  <label class="got"><input type="checkbox" data-sec="plc"> I've got this</label>
+</section>
+
+<section id="scada">
+  <h2><small>ICS / OT · Level 2</small>SCADA</h2>
+  <div class="plain" data-label="In plain English"><p>SCADA (Supervisory Control And Data Acquisition) is the system that lets a control room watch and manage equipment spread over a large area, like every pumping station in a county's water network, from one place.</p></div>
+  <h3>The pieces</h3>
+  <ul>
+    <li><strong>Field devices</strong>: PLCs and <strong>RTUs</strong> (Remote Terminal Units) out at each site.</li>
+    <li><strong>Communications</strong>: radio, mobile data, leased lines, fibre, sometimes satellite.</li>
+    <li><strong>SCADA server</strong> (master station): polls the field devices and collects the data.</li>
+    <li><strong>HMI</strong>: the screens operators use.</li>
+    <li><strong>Historian</strong>: a database storing every reading, for trends and investigations.</li>
+  </ul>
+  <h3>SCADA vs DCS</h3>
+  <p>A <strong>DCS</strong> (Distributed Control System) does a similar job but inside one plant, like a refinery. SCADA covers <em>wide areas</em>: pipelines, grids, water networks. People often say "SCADA" to mean all industrial control. Now you know the difference.</p>
+  <label class="got"><input type="checkbox" data-sec="scada"> I've got this</label>
+</section>
+
+<section id="modbus">
+  <h2><small>ICS / OT · TCP 502</small>Modbus</h2>
+  <div class="plain" data-label="In plain English"><p>Modbus is one of the oldest and most common industrial protocols. A controller asks a device "what's in register 5?" or tells it "set coil 3 to ON". It's simple, it's everywhere, and it has <strong>no security whatsoever</strong>.</p></div>
+  <ul>
+    <li>Created by Modicon in <strong>1979</strong>. Still in use everywhere.</li>
+    <li><strong>Modbus RTU</strong> runs over serial cables (RS-485). <strong>Modbus TCP</strong> runs over Ethernet on port <strong>502</strong>.</li>
+    <li>One side asks (client / master), the other answers (server / slave). Each device has a unit ID.</li>
+  </ul>
+  <h3>The data model</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Type</th><th>Size</th><th>Access</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>Coils</b></td><td>1 bit</td><td>Read / write</td><td>Pump on/off</td></tr>
+      <tr><td><b>Discrete inputs</b></td><td>1 bit</td><td>Read only</td><td>Door closed sensor</td></tr>
+      <tr><td><b>Input registers</b></td><td>16 bit</td><td>Read only</td><td>Temperature reading</td></tr>
+      <tr><td><b>Holding registers</b></td><td>16 bit</td><td>Read / write</td><td>Temperature set point</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Common function codes</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Code</th><th>Does</th></tr></thead>
+    <tbody>
+      <tr><td><code>01</code></td><td>Read coils</td></tr>
+      <tr><td><code>03</code></td><td>Read holding registers</td></tr>
+      <tr><td><code>04</code></td><td>Read input registers</td></tr>
+      <tr><td><code>05</code></td><td>Write single coil</td></tr>
+      <tr><td><code>06</code></td><td>Write single register</td></tr>
+      <tr><td><code>16</code> (0x10)</td><td>Write multiple registers</td></tr>
+    </tbody>
+  </table></div>
+  <div class="warn" data-label="Why this matters"><p>There's no login, no encryption and no check of who's asking. Anyone who can reach port 502 can read every value and write new ones. Exposing Modbus to the internet is effectively handing out the controls. Defences: keep it isolated (see <a href="#purdue">Purdue</a>), firewall it, and monitor for unexpected write commands.</p></div>
+  <div class="term"><header><span>try it · a simulator on your own PC</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> pip install pymodbus
+<span class="c"># run one of pymodbus's example servers on 127.0.0.1:5020,</span>
+<span class="c"># then point a Modbus client at it and open Wireshark with filter: mbtcp</span></pre></div>
+  <details class="check"><summary>You want to change a temperature set point. Which data type and function code?</summary><div><p>A <strong>holding register</strong>, written with function code <strong>06</strong> (or 16 for several at once).</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="modbus"> I've got this</label>
+</section>
+
+<section id="hmi">
+  <h2><small>ICS / OT · Level 2</small>HMI: Human Machine Interface</h2>
+  <div class="plain" data-label="In plain English"><p>The HMI is the screen operators use to see and control the process: tank levels, pump status, alarms, and buttons to start and stop things. It can be a touch panel on a machine or a wall of monitors in a control room.</p></div>
+  <ul>
+    <li>Shows live values from PLCs and the SCADA server, usually as diagrams of the plant.</li>
+    <li>Raises <strong>alarms</strong> when values go out of range.</li>
+    <li>Sends operator commands back down to the PLCs.</li>
+  </ul>
+  <h3>Why HMIs are a weak spot</h3>
+  <ul>
+    <li>Often old Windows PCs that can't be patched without breaking vendor support.</li>
+    <li>Shared operator logins, or default passwords that were never changed.</li>
+    <li>Remote access tools installed "temporarily" for vendors.</li>
+    <li>Web-based HMIs sometimes end up directly on the internet, where Shodan finds them.</li>
+  </ul>
+  <p>Remember Stuxnet: the attackers made the HMI show <em>normal</em> values while the centrifuges were being damaged. Operators can only trust what the screen tells them.</p>
+  <label class="got"><input type="checkbox" data-sec="hmi"> I've got this</label>
+</section>
+
+<section id="canbus">
+  <h2><small>ICS / OT · Vehicles</small>CAN bus</h2>
+  <div class="plain" data-label="In plain English"><p>CAN (Controller Area Network) is the network inside your car. Engine, brakes, airbags, windows and dashboard all chat over a pair of twisted wires. It's also used in tractors, lifts, medical devices and factory equipment.</p></div>
+  <ul>
+    <li>Developed by Bosch in the 1980s. In practically every car since the early 2000s.</li>
+    <li>Two wires: <strong>CAN-High</strong> and <strong>CAN-Low</strong>. Every message goes to every device: it's a broadcast bus.</li>
+    <li>Each message has an <strong>ID</strong> and up to 8 bytes of data (64 bytes with the newer CAN FD).</li>
+    <li>The ID also sets priority: if two devices talk at once, the <strong>lower ID wins</strong>.</li>
+    <li>The <strong>OBD-II port</strong> under your dashboard gives access to it, for diagnostics.</li>
+  </ul>
+  <div class="bin">ID    DLC  DATA
+<span class="n">0x244</span>   8   <span class="h">00 00 00 01 3A 00 00 00</span>    ← e.g. a speed value (meaning varies by maker)</div>
+  <div class="warn" data-label="Security and safety"><p>There's no authentication: any device on the bus can send any message, and the others believe it. Researchers have shown remote attacks reaching steering and brakes. <strong>Never experiment on a vehicle that will be driven</strong>, and never on public roads.</p></div>
+  <div class="term"><header><span>try it · a virtual CAN bus on Linux, no car needed</span><button class="copy" type="button">Copy</button></header><pre><span class="p">$</span> sudo apt install can-utils
+<span class="p">$</span> sudo modprobe vcan
+<span class="p">$</span> sudo ip link add dev vcan0 type vcan &amp;&amp; sudo ip link set up vcan0
+<span class="p">$</span> candump vcan0 &amp;               <span class="c"># listen</span>
+<span class="p">$</span> cansend vcan0 244#0000000132   <span class="c"># send a frame</span></pre></div>
+  <p>For a full simulated dashboard to practise on, search for <strong>ICSim</strong> (Instrument Cluster Simulator).</p>
+  <label class="got"><input type="checkbox" data-sec="canbus"> I've got this</label>
+</section>
+
+<section id="rf">
+  <h2><small>ICS / OT · Radio</small>Radio frequencies</h2>
+  <div class="plain" data-label="In plain English"><p>Every wireless thing, from car key fobs and doorbells to pagers, Wi-Fi and SCADA telemetry, is a radio sending signals at a particular <strong>frequency</strong>. With a cheap <strong>Software Defined Radio</strong> you can see and decode a surprising amount of it.</p></div>
+  <h3>The basics</h3>
+  <ul>
+    <li><strong>Frequency</strong> is measured in hertz (Hz): cycles per second. kHz = thousand, MHz = million, GHz = billion.</li>
+    <li><strong>Lower frequencies</strong> travel further and through walls but carry less data. <strong>Higher frequencies</strong> carry more data over shorter distances.</li>
+    <li><strong>Modulation</strong> is how data is put onto the wave: by changing its amplitude (AM/ASK), frequency (FM/FSK) or phase.</li>
+  </ul>
+  <h3>Frequencies you'll meet</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Frequency</th><th>What's there</th></tr></thead>
+    <tbody>
+      <tr><td>125 kHz</td><td>Old RFID access cards and fobs</td></tr>
+      <tr><td>13.56 MHz</td><td>NFC, contactless bank cards, newer access cards</td></tr>
+      <tr><td>87.5–108 MHz</td><td>FM broadcast radio</td></tr>
+      <tr><td>315 / 433 MHz</td><td>Car keys (US / EU), garage doors, wireless doorbells, weather stations</td></tr>
+      <tr><td>868 / 915 MHz</td><td>LoRa, smart meters, alarm sensors (EU / US)</td></tr>
+      <tr><td>1090 MHz</td><td>ADS-B: aircraft broadcasting their positions</td></tr>
+      <tr><td>2.4 / 5 GHz</td><td>Wi-Fi, Bluetooth, Zigbee</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Tools</h3>
+  <ul>
+    <li><strong>RTL-SDR dongle</strong> (about £30): <em>receive only</em>, roughly 24 MHz–1.7 GHz. The perfect first toy. Track planes with ADS-B, decode weather stations.</li>
+    <li><strong>HackRF / Flipper Zero</strong>: can also <em>transmit</em>. That's where the law gets serious.</li>
+    <li>Software: SDR++, GQRX, Universal Radio Hacker (URH), rtl_433.</li>
+  </ul>
+  <div class="warn" data-label="Legal"><p><strong>Transmitting</strong> without a licence outside the permitted bands and power limits is illegal (in the UK, regulated by Ofcom under the Wireless Telegraphy Act 2006). <strong>Jamming is illegal everywhere.</strong> In the UK, even <em>listening</em> to and using the content of some transmissions not meant for you is an offence. Check your own country's rules. Receiving public broadcasts, ADS-B, and your own devices is the safe place to start.</p></div>
+  <label class="got"><input type="checkbox" data-sec="rf"> I've got this</label>
+</section>
+
+<section id="hid">
+  <h2><small>Physical access</small>HID: USB on steroids</h2>
+  <div class="plain" data-label="In plain English"><p>HID means <strong>Human Interface Device</strong>: keyboards and mice. Computers trust any keyboard you plug in, instantly, no questions asked. A small gadget that <em>pretends</em> to be a keyboard can type a thousand characters a second, so it can open a terminal and run commands faster than you can blink.</p></div>
+  <h3>How it works</h3>
+  <ol class="flow">
+    <li><b>Plug in</b><span>The device tells the computer "I'm a keyboard." No driver warning, no permission prompt.</span></li>
+    <li><b>Wait a moment</b><span>A short delay while the operating system sets it up.</span></li>
+    <li><b>Type</b><span>It fires off a pre-written script of keystrokes: open a terminal, download something, run it, close the window.</span></li>
+  </ol>
+  <h3>Known examples</h3>
+  <ul>
+    <li><strong>USB Rubber Ducky</strong> (Hak5): the original. Scripts are written in "DuckyScript".</li>
+    <li><strong>Flipper Zero BadUSB</strong> and DIY builds on a <strong>Raspberry Pi Pico</strong>: the same idea for a few pounds.</li>
+    <li><strong>O.MG cable</strong>: the attack hardware hidden inside what looks like a normal charging cable.</li>
+    <li><strong>BadUSB</strong> (the research): showed that ordinary USB sticks can have their firmware rewritten to behave like keyboards.</li>
+  </ul>
+  <div class="warn" data-label="Defence"><p>Lock your screen whenever you walk away (<kbd>Win</kbd>+<kbd>L</kbd>, <kbd>Ctrl</kbd>+<kbd>Cmd</kbd>+<kbd>Q</kbd>). Never plug in a USB stick or cable you found or were "given". Businesses can use USB device control to allow only approved devices, and disable unused ports. Physical access beats most security, so protect it.</p></div>
+  <p><strong>Learn safely:</strong> build a Pi Pico HID device and point it at <em>your own</em> spare laptop with a harmless script that opens Notepad and types "hello".</p>
+  <details class="check"><summary>Why doesn't antivirus stop a HID attack when it's plugged in?</summary><div><p>To the computer it's just a keyboard, and keyboards are trusted. Antivirus may catch what the typed commands <em>download</em>, but not the typing itself.</p></div></details>
+  <label class="got"><input type="checkbox" data-sec="hid"> I've got this</label>
+</section>
+
+<!-- =================== NEXT =================== -->
+<div class="part">Finish</div>
+
+<section id="next">
+  <h2><small>Keep going</small>What next?</h2>
+  <p>If you've ticked everything above, you know more about how networks actually work than plenty of people who paid for a course. Now make it real.</p>
+  <h3>Build a home lab</h3>
+  <ul>
+    <li>Any old PC or laptop plus <strong>VirtualBox</strong> or <strong>Proxmox</strong> (both free).</li>
+    <li>A virtual firewall: <strong>pfSense</strong> or <strong>OPNsense</strong>. Create subnets, write rules, break them, fix them.</li>
+    <li><strong>Cisco Packet Tracer</strong> (free) or <strong>GNS3</strong> to simulate routers and switches.</li>
+    <li><strong>OpenPLC</strong> on a Raspberry Pi for the ICS side.</li>
+  </ul>
+  <h3>Free learning that isn't rubbish</h3>
+  <ul>
+    <li><a href="https://www.professormesser.com/" rel="noopener">Professor Messer</a>: free full video courses for CompTIA Network+ and Security+.</li>
+    <li><a href="https://nmap.org/book/" rel="noopener">The Nmap book</a>: much of it free online, written by Nmap's author.</li>
+    <li><a href="https://wiki.wireshark.org/SampleCaptures" rel="noopener">Wireshark sample captures</a>: real traffic to pick apart, including ICS protocols.</li>
+    <li>The RFCs themselves. They're drier than toast and they're the actual source.</li>
+  </ul>
+  <div class="voice" data-label="Last word">You don't need a £2,000 bootcamp. You need curiosity, a search engine, a spare PC, and the patience to read the boring bits. Now go and do it, legally.</div>
+  <label class="got"><input type="checkbox" data-sec="next"> Done. Off to build a lab.</label>
+</section>
+
+<footer>
+  <p>No Frills Network Basics by <a href="https://github.com/NorfolkHacker/No-Frills-Network-Basics" rel="noopener">NorfolkHacker</a>. Work in progress. Spotted a mistake? Open an issue on GitHub.</p>
+</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  /* ---------- progress ticks (per-browser only) ---------- */
+  var KEY="nfnb-progress";
+  var store={};
+  try{store=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){store={}}
+  var boxes=[].slice.call(document.querySelectorAll(".got input"));
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+  function paint(){
+    var done=0;
+    boxes.forEach(function(b){
+      var id=b.dataset.sec, on=!!store[id];
+      b.checked=on; if(on)done++;
+      var link=document.querySelector('#toc a[href="#'+id+'"]');
+      if(link)link.classList.toggle("done",on);
+    });
+    var pct=Math.round(done/boxes.length*100);
+    document.getElementById("pct").textContent=done+" of "+boxes.length+" topics";
+    document.getElementById("pct-m").textContent=pct+"%";
+    document.getElementById("barfill").style.width=pct+"%";
+  }
+  boxes.forEach(function(b){b.addEventListener("change",function(){store[b.dataset.sec]=b.checked;save();paint()})});
+  paint();
+
+  /* ---------- contents: highlight current section, collapse on phone ---------- */
+  var toc=document.getElementById("toc");
+  var mq=window.matchMedia("(max-width:900px)");
+  function setToc(){toc.open=!mq.matches}
+  setToc(); if(mq.addEventListener)mq.addEventListener("change",setToc);
+  document.querySelectorAll("#toc a").forEach(function(a){a.addEventListener("click",function(){if(mq.matches)toc.open=false})});
+  var links={};document.querySelectorAll("#toc a").forEach(function(a){links[a.getAttribute("href").slice(1)]=a});
+  if("IntersectionObserver" in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){Object.keys(links).forEach(function(k){links[k].classList.remove("on")});var l=links[e.target.id];if(l)l.classList.add("on")}
+    })},{rootMargin:"-20% 0px -70% 0px"});
+    document.querySelectorAll("main section[id]").forEach(function(s){io.observe(s)});
+  }
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll(".term").forEach(function(t){
+    var btn=t.querySelector(".copy"), pre=t.querySelector("pre");
+    if(!btn)return;
+    btn.addEventListener("click",function(){
+      var text=pre.innerText.split("\n").map(function(l){return l.replace(/^[$>]\s/,"").replace(/\s+#.*$/,"")}).join("\n").trim();
+      function ok(){btn.textContent="Copied";setTimeout(function(){btn.textContent="Copy"},1400)}
+      function fallback(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Selected: Ctrl+C"}
+      try{navigator.clipboard.writeText(text).then(ok,fallback)}catch(e){fallback()}
+    });
+  });
+
+  /* ---------- subnet calculator ---------- */
+  function parseIP(s){
+    var p=s.trim().split(".");
+    if(p.length!==4)return null;
+    var n=0;
+    for(var i=0;i<4;i++){
+      if(!/^\d{1,3}$/.test(p[i]))return null;
+      var v=+p[i]; if(v>255)return null;
+      n=n*256+v;
+    }
+    return n>>>0;
+  }
+  function toIP(n){return [n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].join(".")}
+  function toBin(n){var b=(n>>>0).toString(2);while(b.length<32)b="0"+b;return b}
+  function colour(bits,cidr){
+    var out="";
+    for(var i=0;i<32;i++){
+      if(i&&i%8===0)out+=".";
+      out+='<span class="'+(i<cidr?"n":"h")+'">'+bits[i]+"</span>";
+    }
+    return out;
+  }
+  function inRange(ip,base,len){var m=len===0?0:(0xFFFFFFFF<<(32-len))>>>0;return ((ip&m)>>>0)===((base&m)>>>0)}
+  function kind(ip){
+    var R=[["10.0.0.0",8,"Private (RFC 1918)"],["172.16.0.0",12,"Private (RFC 1918)"],["192.168.0.0",16,"Private (RFC 1918)"],
+           ["127.0.0.0",8,"Loopback"],["169.254.0.0",16,"Link-local (DHCP failed?)"],["100.64.0.0",10,"Carrier-grade NAT"],
+           ["192.0.2.0",24,"Documentation"],["198.51.100.0",24,"Documentation"],["203.0.113.0",24,"Documentation"],
+           ["224.0.0.0",4,"Multicast"],["0.0.0.0",8,"Reserved (this network)"],["240.0.0.0",4,"Reserved"]];
+    for(var i=0;i<R.length;i++){if(inRange(ip,parseIP(R[i][0]),R[i][1]))return R[i][2]}
+    return "Public";
+  }
+  var ipIn=document.getElementById("c-ip"),cIn=document.getElementById("c-cidr"),err=document.getElementById("c-err");
+  function calc(){
+    var ip=parseIP(ipIn.value), c=parseInt(cIn.value,10);
+    var outIds=["o-mask","o-net","o-bc","o-first","o-last","o-hosts","o-type"];
+    if(ip===null){err.textContent="That isn't a valid IPv4 address. Use four numbers from 0 to 255, like 192.168.1.10.";return}
+    if(isNaN(c)||c<0||c>32){err.textContent="CIDR must be a whole number from 0 to 32.";return}
+    err.textContent="";
+    var mask=c===0?0:(0xFFFFFFFF<<(32-c))>>>0;
+    var net=(ip&mask)>>>0, bc=(net|(~mask>>>0))>>>0;
+    var total=Math.pow(2,32-c), first, last, hosts;
+    if(c===32){first=last=net;hosts="1 (single host)"}
+    else if(c===31){first=net;last=bc;hosts="2 (point-to-point link)"}
+    else{first=net+1;last=bc-1;hosts=(total-2).toLocaleString("en-GB")}
+    var vals=[toIP(mask),toIP(net),c>=31?"n/a":toIP(bc),toIP(first),toIP(last),hosts,kind(ip)];
+    outIds.forEach(function(id,i){document.getElementById(id).textContent=vals[i]});
+    document.getElementById("o-bin").innerHTML=
+      "IP       "+colour(toBin(ip),c)+"   "+toIP(ip)+"\n"+
+      "Mask     "+colour(toBin(mask),c)+"   /"+c+"\n"+
+      "Network  "+colour(toBin(net),c)+"   "+toIP(net);
+  }
+  ipIn.addEventListener("input",calc);cIn.addEventListener("input",calc);
+  document.getElementById("calcform").addEventListener("submit",function(e){e.preventDefault();calc()});
+  calc();
+})();
+</script>
+</body>
+</html>
